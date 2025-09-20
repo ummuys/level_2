@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Установка флагов
 func readFlags() (SortFlags, error) {
 	nextFlag := false
 	nextNum := false
@@ -52,17 +53,22 @@ func readFlags() (SortFlags, error) {
 	return sf, nil
 }
 
+// Выборка из сырых строчек нужных данных
 func prepareKey(s string, sf SortFlags) (sortItem, error) {
+	// s - raw, field - clear
 	field := s
 
+	// Сдвиг по табам
 	if sf.KN > 0 {
 		field = getTabField(s, sf.KN)
 	}
 
+	// Удалить пробелы слева (так работает оригинальный сорт)
 	if sf.B {
 		field = strings.TrimLeft(field, " ")
 	}
 
+	// Работа с месяцами
 	if sf.M {
 		mon, ok := months[field]
 		if !ok {
@@ -71,6 +77,7 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 		return sortItem{raw: s, keyNum: mon, hasNum: true}, nil
 	}
 
+	// Конверт в дату
 	if sf.H {
 		n, err := parseHumanSize(field)
 		if err != nil {
@@ -82,6 +89,7 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 		return sortItem{raw: s, keyNum: n, hasNum: true}, nil
 	}
 
+	// Конверт в числа
 	if sf.N {
 		n, err := atoiStrict(field)
 		if err != nil {
@@ -96,6 +104,7 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 	return sortItem{raw: s, keyStr: field}, nil
 }
 
+// Уникальные строчки
 func uniqueStrings(in []string) []string {
 	uniq := make(map[string]struct{}, len(in))
 	res := make([]string, 0, len(in)/2)
@@ -108,6 +117,7 @@ func uniqueStrings(in []string) []string {
 	return res
 }
 
+// Парс даты
 func parseHumanSize(s string) (int, error) {
 	x := strings.TrimSpace(s)
 	if x == "" {

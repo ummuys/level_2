@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Основная функция
 func WBSort() (err error) {
 
 	r, f, err := chooseReader()
