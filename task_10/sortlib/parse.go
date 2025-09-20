@@ -60,7 +60,7 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 	}
 
 	if sf.B {
-		field = strings.TrimRight(field, " ")
+		field = strings.TrimLeft(field, " ")
 	}
 
 	if sf.M {
