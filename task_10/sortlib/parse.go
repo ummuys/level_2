@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Установка флагов
 func readFlags() (SortFlags, error) {
 	var sf SortFlags
 
@@ -31,8 +32,13 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 	field := s
 
 	// Сдвиг по табам
+<<<<<<< HEAD
 	if sf.K > 0 {
 		field = getTabField(s, sf.K)
+=======
+	if sf.KN > 0 {
+		field = getTabField(s, sf.KN)
+>>>>>>> dbd42c121a2be6d7cd474a67df6921aaa89f04a7
 	}
 
 	// Удалить пробелы слева (так работает оригинальный сорт)

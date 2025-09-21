@@ -40,7 +40,11 @@ func TestChooseSort_AllCases(t *testing.T) {
 		{numTest: 22, input: []string{"zz", "aa", "zz", "mm", "aa", "bb"}, flags: sortlib.SortFlags{U: true}, expect: []string{"aa", "bb", "mm", "zz"}},
 		{numTest: 23, input: []string{"k", "k", "k"}, flags: sortlib.SortFlags{R: true, U: true}, expect: []string{"k"}},
 
+<<<<<<< HEAD
 		// K + K
+=======
+		// K + KN
+>>>>>>> dbd42c121a2be6d7cd474a67df6921aaa89f04a7
 		{
 			numTest: 101,
 			input: []string{
@@ -117,7 +121,11 @@ func TestChooseSort_AllCases(t *testing.T) {
 				"c\t1M\tMar",
 				"d\t999\tJan",
 			},
+<<<<<<< HEAD
 			flags: sortlib.SortFlags{K: 2, H: true},
+=======
+			flags: sortlib.SortFlags{K: true, KN: 2, H: true},
+>>>>>>> dbd42c121a2be6d7cd474a67df6921aaa89f04a7
 			expect: []string{
 				"d\t999\tJan",
 				"b\t1500\tFeb",
@@ -151,13 +159,21 @@ func TestChooseSort_CheckOnly(t *testing.T) {
 		{
 			numTest:        301,
 			input:          []string{"a\t1", "b\t2", "c\t3"},
+<<<<<<< HEAD
 			flags:          sortlib.SortFlags{C: true, K: 2, N: true},
+=======
+			flags:          sortlib.SortFlags{K: true, C: true, KN: 2, N: true},
+>>>>>>> dbd42c121a2be6d7cd474a67df6921aaa89f04a7
 			expectMsgEmpty: true,
 		},
 		{
 			numTest:        302,
 			input:          []string{"a\t2", "b\t1"},
+<<<<<<< HEAD
 			flags:          sortlib.SortFlags{C: true, K: 2, N: true},
+=======
+			flags:          sortlib.SortFlags{K: true, C: true, KN: 2, N: true},
+>>>>>>> dbd42c121a2be6d7cd474a67df6921aaa89f04a7
 			expectMsgEmpty: false,
 		},
 	}
