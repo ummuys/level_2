@@ -2,11 +2,14 @@ package sortlib
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
+// Выбор файла или os.Stdin
 func chooseReader() (io.Reader, *os.File, error) {
 	var (
 		r    io.Reader
@@ -14,33 +17,42 @@ func chooseReader() (io.Reader, *os.File, error) {
 		err  error
 	)
 
-	if len(os.Args) > 1 {
-		file, err = os.Open(os.Args[1])
+	args := flag.Args()
+
+	if len(args) > 0 {
+		file, err = os.Open(args[0])
 		if err != nil {
-			return nil, nil, fmt.Errorf("bad name file")
+			return nil, nil, fmt.Errorf("не удалось открыть файл %q: %w", args[0], err)
 		}
 		r = file
 	} else {
 		r = os.Stdin
 	}
+
 	return r, file, nil
 }
 
+// Чтение файла
 func readInfo(r io.Reader) ([]string, error) {
-	s := bufio.NewScanner(r)
-	var buf []string
+	br := bufio.NewReaderSize(r, 64*1024)
+	var lines []string
 
-	for s.Scan() {
-		buf = append(buf, s.Text())
+	for {
+		line, err := br.ReadString('\n')
+		if len(line) > 0 {
+			lines = append(lines, strings.TrimRight(line, "\r\n"))
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, fmt.Errorf("err read info: %w", err)
+		}
 	}
-
-	if err := s.Err(); err != nil {
-		return nil, fmt.Errorf("err read info: %v", err)
-	}
-
-	return buf, nil
+	return lines, nil
 }
 
+// Запись
 func writeInfo(buf []string) error {
 	w := bufio.NewWriter(os.Stdout)
 	for _, s := range buf {

@@ -1,68 +1,46 @@
 package sortlib
 
 import (
+	"flag"
 	"fmt"
 	"math"
-	"os"
 	"strconv"
 	"strings"
 )
 
 func readFlags() (SortFlags, error) {
-	nextFlag := false
-	nextNum := false
-	sf := SortFlags{}
-	for _, elem := range os.Args {
-		for _, s := range elem {
-			if s == '-' {
-				nextFlag = true
-				continue
-			} else if nextFlag {
-				switch s {
-				case 'k':
-					sf.K = true
-					nextNum = true
-				case 'r':
-					sf.R = true
-				case 'n':
-					sf.N = true
-				case 'u':
-					sf.U = true
-				case 'c':
-					sf.C = true
-				case 'M':
-					sf.M = true
-				case 'b':
-					sf.B = true
-				case 'h':
-					sf.H = true
-				default:
-					nextFlag = false
-				}
-			} else if nextNum {
-				iNum, err := strconv.Atoi(elem)
-				if err != nil {
-					return sf, fmt.Errorf("invalid num for flag k: %s", elem)
-				}
-				sf.KN = iNum
-				nextNum = false
-			}
-		}
-	}
+	var sf SortFlags
+
+	flag.BoolVar(&sf.R, "r", false, "сортировать в обратном порядке")
+	flag.BoolVar(&sf.N, "n", false, "сортировка по числовому значению")
+	flag.BoolVar(&sf.U, "u", false, "убрать дубликаты")
+	flag.BoolVar(&sf.C, "c", false, "проверить отсортированность")
+	flag.BoolVar(&sf.M, "M", false, "сортировка по месяцам")
+	flag.BoolVar(&sf.B, "b", false, "игнорировать хвостовые пробелы")
+	flag.BoolVar(&sf.H, "h", false, "сортировка по суффиксам (например, 2K, 1G)")
+	flag.IntVar(&sf.K, "k", 0, "сортировать по столбцу")
+
+	flag.Parse()
+
 	return sf, nil
 }
 
+// Выборка из сырых строчек нужных данных
 func prepareKey(s string, sf SortFlags) (sortItem, error) {
+	// s - raw, field - clear
 	field := s
 
-	if sf.KN > 0 {
-		field = getTabField(s, sf.KN)
+	// Сдвиг по табам
+	if sf.K > 0 {
+		field = getTabField(s, sf.K)
 	}
 
+	// Удалить пробелы слева (так работает оригинальный сорт)
 	if sf.B {
-		field = strings.TrimRight(field, " ")
+		field = strings.TrimLeft(field, " ")
 	}
 
+	// Работа с месяцами
 	if sf.M {
 		mon, ok := months[field]
 		if !ok {
@@ -71,10 +49,11 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 		return sortItem{raw: s, keyNum: mon, hasNum: true}, nil
 	}
 
+	// Конверт в дату
 	if sf.H {
 		n, err := parseHumanSize(field)
 		if err != nil {
-			if sf.KN > 0 {
+			if sf.K > 0 {
 				return sortItem{}, fmt.Errorf("can't convert human size key %q at line %q: %v", field, s, err)
 			}
 			return sortItem{}, fmt.Errorf("can't convert human size %q: %v", field, err)
@@ -82,10 +61,11 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 		return sortItem{raw: s, keyNum: n, hasNum: true}, nil
 	}
 
+	// Конверт в числа
 	if sf.N {
 		n, err := atoiStrict(field)
 		if err != nil {
-			if sf.KN > 0 {
+			if sf.K > 0 {
 				return sortItem{}, fmt.Errorf("can't convert key %q at line %q: %v", field, s, err)
 			}
 			return sortItem{}, fmt.Errorf("can't convert %q: %v", s, err)
@@ -96,6 +76,7 @@ func prepareKey(s string, sf SortFlags) (sortItem, error) {
 	return sortItem{raw: s, keyStr: field}, nil
 }
 
+// Уникальные строчки
 func uniqueStrings(in []string) []string {
 	uniq := make(map[string]struct{}, len(in))
 	res := make([]string, 0, len(in)/2)
@@ -108,6 +89,7 @@ func uniqueStrings(in []string) []string {
 	return res
 }
 
+// Парс даты
 func parseHumanSize(s string) (int, error) {
 	x := strings.TrimSpace(s)
 	if x == "" {

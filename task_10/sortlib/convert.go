@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Удалить табы
 func getTabField(s string, k int) string {
 	if k <= 0 {
 		return s
@@ -16,6 +17,7 @@ func getTabField(s string, k int) string {
 	return ""
 }
 
+// Конверт в числа
 func atoiStrict(s string) (int, error) {
 	n, err := strconv.Atoi(strings.TrimSpace(s))
 	if err != nil {

@@ -5,7 +5,13 @@ import (
 	"fmt"
 )
 
+// Основная функция
 func WBSort() (err error) {
+
+	flags, err := readFlags()
+	if err != nil {
+		return
+	}
 
 	r, f, err := chooseReader()
 	if err != nil {
@@ -20,11 +26,6 @@ func WBSort() (err error) {
 				err = errors.Join(err, fmt.Errorf("close %q: %w", fName, fErr))
 			}
 		}()
-	}
-
-	flags, err := readFlags()
-	if err != nil {
-		return
 	}
 
 	buf, err := readInfo(r)
